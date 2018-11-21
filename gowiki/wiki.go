@@ -35,21 +35,23 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	// Use of (_) to ignore error return value from loadPage
 	p, _ := loadPage(title)
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+	renderTemplate(w, "view", p)
+	
 }
 
+// template.ParseFiles reads the contents of its argument(edit.html) and returns a *template.Template. the method t.Execute executes the template, writing the generated HTML to http.ResponseWriter
 func editHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/edit/"):]
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	fmt.Fprintf(w, "<h1>Edititing %s</h1>" + 
-	"<form action=\"/save/%s\" method=\"POST\">"+
-	"<textarea name=\"body\">%s</textarea><br>"+
-	"<input type=\"submit\" value=\"Save\">"+
-	"</form>",
-	p.Title, p.Title, p.Body)
+	renderTemplate(w, "edit", p)
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	t, _ := template.ParseFiles(temp + ".html")
+	t.Execute(t, p)
 }
 
 func main() {
